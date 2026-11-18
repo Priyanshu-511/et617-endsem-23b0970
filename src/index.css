@@ -1,31 +1,502 @@
-:root { --bg:#f5f7fb; --ink:#14213d; --brand:#0b5fff; --card:#fff; --ok:#177245; --bad:#b3261e; }
-* { box-sizing: border-box; }
-body { margin:0; font-family: system-ui, "Noto Sans", "Noto Sans Devanagari", sans-serif;
-  background:var(--bg); color:var(--ink); font-size:18px; line-height:1.5;
-  min-height:100vh; display:flex; flex-direction:column; }
-#root { display:flex; flex-direction:column; min-height:100vh; }
-.nav { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--brand); }
-.brand, .navlink { color:#fff; text-decoration:none; font-weight:700; padding:8px; }
-.main { flex:1; padding:16px; max-width:640px; width:100%; margin:0 auto; }
-.card { background:var(--card); border-radius:16px; padding:20px; box-shadow:0 2px 8px #0001; }
-h1 { font-size:1.5rem; margin-top:0; }
-.btn { display:block; width:100%; min-height:52px; border:0; border-radius:12px; background:var(--brand);
-  color:#fff; font-size:1.05rem; font-weight:700; margin:12px 0; cursor:pointer; }
-.btn.secondary { background:#fff; color:var(--brand); border:2px solid var(--brand); }
-.btn.ok { background:var(--ok); } .btn.bad { background:var(--bad); }
-.btn:disabled { opacity:.5; }
-.input { width:100%; min-height:48px; font-size:1rem; padding:8px; border-radius:10px; border:2px solid #c8d0e0; }
-.label { font-weight:600; display:block; margin-top:12px; }
-.note { font-size:.9rem; color:#4a5568; }
-.footer { text-align:center; padding:12px; font-size:.85rem; background:#e8ecf5; }
-.status { padding:10px; border-radius:10px; background:#eef3ff; margin:8px 0; font-weight:600; }
-.status.listening { background:#ffe9e7; } .status.speaking { background:#e5f6ec; }
-.badge { display:inline-block; padding:2px 10px; border-radius:99px; background:#fff3cd; font-size:.85rem; font-weight:700; }
-img.preview { width:100%; border-radius:12px; }
-button:focus-visible, select:focus-visible, input:focus-visible { outline:3px solid #ffb703; }
+/* ============================================================
+   RoadWise — Minimalistic, Light & Peaceful Traffic Palette
+   Soft, calm, editorial daylight theme with organic traffic accents
+   🔴 Muted Terracotta Red  #c94a4a
+   🟡 Warm Honey Amber      #d99326
+   🟢 Soft Sage Green       #2e8b57
+   ============================================================ */
 
-.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-.tile { background:#fff; border:2px solid #c8d0e0; border-radius:12px; padding:8px; min-height:56px; cursor:pointer; }
-.signcard { display:flex; flex-direction:column; align-items:center; text-align:center; }
-.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:8px 0; }
-h2 { font-size:1.2rem; } h3 { font-size:1.05rem; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-page:      #f8f9f7;   /* Calm off-white daylight surface */
+  --bg-card:      #ffffff;   /* Pure crisp card */
+  --bg-subtle:    #f1f3ef;   /* Soft sage-tinted warm neutral */
+
+  --ink-primary:  #1f2421;   /* Gentle deep charcoal (easier on eyes than pure black) */
+  --ink-secondary:#525c56;   /* Soft slate grey for body text */
+  --ink-muted:    #7c8780;   /* Light grey for captions & footnotes */
+
+  /* Muted, peaceful traffic-light tones (no neon) */
+  --red:          #c94a4a;
+  --red-bg:       #fdf2f2;
+  --red-border:   #f2cccc;
+
+  --amber:        #c8841d;
+  --amber-bg:     #fef9ef;
+  --amber-border: #f2dfb9;
+
+  --green:        #2e8b57;
+  --green-bg:     #f0f9f4;
+  --green-border: #c5e6d2;
+
+  --border:       #e3e7e1;
+  --border-hover: #cbd2c8;
+
+  --radius-card:  16px;
+  --radius-btn:   10px;
+  --radius-sm:    8px;
+
+  --shadow-soft:  0 4px 20px rgba(31, 36, 33, 0.04), 0 1px 3px rgba(31, 36, 33, 0.03);
+  --transition:   0.2s ease;
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--ink-primary);
+  font-size: 16px;
+  line-height: 1.65;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ══════════════════════════════════════════
+   NAVBAR
+══════════════════════════════════════════ */
+.nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-primary);
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Subtle horizontal traffic-light dots next to brand */
+.brand::before {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 10px;
+  background:
+    radial-gradient(circle 3.5px at 4px 5px,  var(--red)   95%, transparent 100%),
+    radial-gradient(circle 3.5px at 14px 5px, var(--amber) 95%, transparent 100%),
+    radial-gradient(circle 3.5px at 24px 5px, var(--green) 95%, transparent 100%);
+  flex-shrink: 0;
+}
+
+.navlink {
+  color: var(--ink-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 6px 14px;
+  border-radius: 99px;
+  transition: background var(--transition), color var(--transition);
+}
+.navlink:hover {
+  background: var(--bg-subtle);
+  color: var(--ink-primary);
+}
+
+/* ══════════════════════════════════════════
+   LAYOUT & CARD
+══════════════════════════════════════════ */
+.main {
+  flex: 1;
+  padding: 32px 16px 48px;
+  max-width: 620px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 32px 28px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  overflow: hidden;
+  animation: gentleFade 0.3s ease;
+}
+
+/* Whisper-thin calm traffic accent line at top of card */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--red) 0%, var(--amber) 50%, var(--green) 100%);
+  opacity: 0.65;
+}
+
+/* ══════════════════════════════════════════
+   TYPOGRAPHY
+══════════════════════════════════════════ */
+h1 {
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--ink-primary);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--ink-primary);
+  margin: 22px 0 10px;
+}
+
+h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  margin: 24px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+p {
+  color: var(--ink-secondary);
+  margin-bottom: 12px;
+}
+
+strong {
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+/* ══════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════ */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-btn);
+  background: var(--green);      /* Peaceful Sage Green as primary Go/Continue */
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: background var(--transition), transform 0.1s ease, border-color var(--transition);
+}
+.btn:hover:not(:disabled) {
+  background: #257347;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+/* Secondary calm outline button */
+.btn.secondary {
+  background: var(--bg-card);
+  color: var(--ink-primary);
+  border: 1px solid var(--border-hover);
+}
+.btn.secondary:hover:not(:disabled) {
+  background: var(--amber-bg);
+  border-color: var(--amber);
+  color: #8f5c0e;
+}
+
+/* Explicitly Green OK button */
+.btn.ok {
+  background: var(--green);
+  color: #ffffff;
+}
+.btn.ok:hover:not(:disabled) {
+  background: #257347;
+}
+
+/* Soft Terracotta Red alert/bad button */
+.btn.bad {
+  background: var(--red);
+  color: #ffffff;
+}
+.btn.bad:hover:not(:disabled) {
+  background: #b03a3a;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ══════════════════════════════════════════
+   INPUTS & SELECTS (100% Crisp Daylight Legibility)
+══════════════════════════════════════════ */
+.label {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--ink-primary);
+  display: block;
+  margin: 18px 0 6px;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  font-family: inherit;
+  font-size: 0.98rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-hover);
+  background: #ffffff;
+  color: var(--ink-primary);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-bg);
+}
+
+.input::placeholder {
+  color: var(--ink-muted);
+}
+
+/* File input styling */
+input[type="file"].input {
+  padding: 8px 10px;
+  background: var(--bg-subtle);
+  cursor: pointer;
+}
+input[type="file"]::file-selector-button {
+  background: #ffffff;
+  border: 1px solid var(--border-hover);
+  color: var(--ink-primary);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-right: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+input[type="file"]::file-selector-button:hover {
+  background: var(--bg-page);
+}
+
+/* Select Dropdown & Options: Clean, Native-Friendly & High Contrast */
+select.input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #ffffff;
+  color: var(--ink-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23525c56' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+select.input option {
+  background-color: #ffffff;
+  color: #1f2421;
+  padding: 10px;
+}
+
+/* ══════════════════════════════════════════
+   STATUS & FEEDBACK BOXES
+══════════════════════════════════════════ */
+.status {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-border);
+  border-left: 4px solid var(--amber);
+  margin: 14px 0;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #6b470c;
+}
+
+.status.listening {
+  background: var(--red-bg);
+  border-color: var(--red-border);
+  border-left-color: var(--red);
+  color: #7d2525;
+}
+
+.status.speaking {
+  background: var(--green-bg);
+  border-color: var(--green-border);
+  border-left-color: var(--green);
+  color: #1c5736;
+}
+
+/* ══════════════════════════════════════════
+   BADGE
+══════════════════════════════════════════ */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: var(--amber-bg);
+  color: #8f5c0e;
+  border: 1px solid var(--amber-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 6px 0;
+}
+
+/* ══════════════════════════════════════════
+   GRID & TILES
+══════════════════════════════════════════ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.tile {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-btn);
+  padding: 14px 10px;
+  min-height: 70px;
+  cursor: pointer;
+  color: var(--ink-primary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+.tile:hover {
+  border-color: var(--green);
+  background: var(--green-bg);
+  box-shadow: 0 2px 10px rgba(46, 139, 87, 0.08);
+}
+
+/* ══════════════════════════════════════════
+   SIGN CARD & PRACTICE ROWS
+══════════════════════════════════════════ */
+.signcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.signcard span {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+}
+
+/* ══════════════════════════════════════════
+   PREVIEWS
+══════════════════════════════════════════ */
+img.preview, video.preview {
+  width: 100%;
+  border-radius: var(--radius-btn);
+  border: 1px solid var(--border);
+  display: block;
+  margin: 12px 0;
+  object-fit: cover;
+}
+
+/* ══════════════════════════════════════════
+   LISTS & SCORE
+══════════════════════════════════════════ */
+ul { padding-left: 0; list-style: none; margin: 10px 0; }
+ul li {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  margin: 6px 0;
+  color: var(--ink-secondary);
+  font-size: 0.94rem;
+}
+
+/* Clean Results Score */
+section.card h2:first-of-type {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green);
+  margin: 8px 0 18px;
+}
+
+/* ══════════════════════════════════════════
+   NOTES, FOCUS & FOOTER
+══════════════════════════════════════════ */
+.note {
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+.footer {
+  text-align: center;
+  padding: 18px 16px;
+  font-size: 0.82rem;
+  color: var(--ink-muted);
+  background: transparent;
+  border-top: 1px solid var(--border);
+}
+
+@keyframes gentleFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 520px) {
+  .main { padding: 20px 12px 36px; }
+  .card { padding: 22px 18px; }
+  h1 { font-size: 1.38rem; }
+  .grid { grid-template-columns: 1fr; }
+}

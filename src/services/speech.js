@@ -17,19 +17,29 @@ export function getVoices() {
 export async function hasVoiceFor(lang) {
   const base = lang.split("-")[0];
   const v = await getVoices();
-  return v.some((x) => x.lang === lang || x.lang.startsWith(base));
+  return v.some((x) => {
+    const l = (x.lang || "").replace("_", "-").toLowerCase();
+    return l === lang.toLowerCase() || l.startsWith(base.toLowerCase());
+  });
 }
 
 export async function speak(text, lang, { onStart, onEnd, onError } = {}) {
   if (!synthesisSupported()) return onError?.("tts-unsupported");
   speechSynthesis.cancel();
   const voices = await getVoices();
-  const base = lang.split("-")[0];
-  const voice = voices.find((x) => x.lang === lang) || voices.find((x) => x.lang.startsWith(base));
+  const base = lang.split("-")[0].toLowerCase();
+  const norm = (s) => (s || "").replace("_", "-").toLowerCase();
+
+  // Match exact locale first, then base language, and for Marathi fall back to Hindi Devanagari voice if no Marathi voice is installed on Linux/Desktop
+  const voice =
+    voices.find((x) => norm(x.lang) === norm(lang)) ||
+    voices.find((x) => norm(x.lang).startsWith(base)) ||
+    (base === "mr" ? voices.find((x) => norm(x.lang).startsWith("hi")) : null);
+
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
+  u.lang = voice ? voice.lang : lang;
   if (voice) u.voice = voice;
-  else onError?.("no-voice"); // still attempts with default voice
+  else onError?.("no-voice");
   u.rate = 0.9;
   u.onstart = () => onStart?.();
   u.onend = () => onEnd?.();

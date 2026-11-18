@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../App.jsx";
 import { LANGUAGES } from "../config/learner.js";
 import { recognitionSupported, synthesisSupported } from "../services/speech.js";
+import { useApp } from "../context.jsx";
 
 export default function Welcome() {
   const nav = useNavigate();

@@ -23,3 +23,9 @@ h1 { font-size:1.5rem; margin-top:0; }
 .badge { display:inline-block; padding:2px 10px; border-radius:99px; background:#fff3cd; font-size:.85rem; font-weight:700; }
 img.preview { width:100%; border-radius:12px; }
 button:focus-visible, select:focus-visible, input:focus-visible { outline:3px solid #ffb703; }
+
+.grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.tile { background:#fff; border:2px solid #c8d0e0; border-radius:12px; padding:8px; min-height:56px; cursor:pointer; }
+.signcard { display:flex; flex-direction:column; align-items:center; text-align:center; }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:8px 0; }
+h2 { font-size:1.2rem; } h3 { font-size:1.05rem; }

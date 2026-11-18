@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 const IDS = ["STOP","NO_ENTRY","SPEED_LIMIT_40","SCHOOL_AHEAD","PEDESTRIAN_CROSSING","PARKING","HOSPITAL","UNKNOWN"];
 const CONF = ["high", "medium", "low"];
 
@@ -32,20 +35,38 @@ function validate(o) {
 
 // ---- Provider adapter (Gemini). Swap only this function to change provider. ----
 async function callProvider(mime, b64, signal) {
-  const model = process.env.VISION_MODEL || "gemini-2.5-flash";
+  const modelsToTry = [
+    process.env.VISION_MODEL || "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3.8-flash"
+  ];
   const base = process.env.VISION_API_URL || "https://generativelanguage.googleapis.com/v1beta";
-  const r = await fetch(`${base}/models/${model}:generateContent`, {
-    method: "POST",
-    signal,
-    headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.VISION_API_KEY },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: PROMPT }, { inline_data: { mime_type: mime, data: b64 } }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
-    }),
-  });
-  if (!r.ok) throw new Error(`provider ${r.status}`);
-  const j = await r.json();
-  return j.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  let lastError;
+  for (const model of modelsToTry) {
+    try {
+      const r = await fetch(`${base}/models/${model}:generateContent`, {
+        method: "POST",
+        signal,
+        headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.VISION_API_KEY },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: PROMPT }, { inline_data: { mime_type: mime, data: b64 } }] }],
+          generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
+        }),
+      });
+      if (r.ok) {
+        const j = await r.json();
+        return j.candidates?.[0]?.content?.parts?.[0]?.text;
+      }
+      const errText = await r.text();
+      console.warn(`Model ${model} failed with ${r.status}:`, errText);
+      lastError = new Error(`provider ${r.status}: ${errText}`);
+    } catch (e) {
+      if (e.name === "AbortError") throw e;
+      lastError = e;
+    }
+  }
+  throw lastError;
 }
 
 export default async function handler(req, res) {
